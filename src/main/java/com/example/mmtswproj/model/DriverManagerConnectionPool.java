@@ -1,4 +1,4 @@
-package it.unisa.model;
+package com.example.mmtswproj.model;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

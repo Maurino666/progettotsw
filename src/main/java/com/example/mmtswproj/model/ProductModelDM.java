@@ -1,33 +1,19 @@
-package it.unisa.model;
+package com.example.mmtswproj.model;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
+import javax.imageio.ImageIO;
 
-public class ProductModelDS implements ProductModel {
-
-	private static DataSource ds;
-
-	static {
-		try {
-			Context initCtx = new InitialContext();
-			Context envCtx = (Context) initCtx.lookup("java:comp/env");
-
-			ds = (DataSource) envCtx.lookup("jdbc/tavolando");
-
-		} catch (NamingException e) {
-			System.out.println("Error:" + e.getMessage());
-		}
-	}
+public class ProductModelDM implements ProductModel {
 
 	private static final String TABLE_NAME = "Prodotto";
 
@@ -37,12 +23,13 @@ public class ProductModelDS implements ProductModel {
 		Connection connection = null;
 		PreparedStatement preparedStatement = null;
 
-		String insertSQL = "INSERT INTO " + ProductModelDS.TABLE_NAME
+		String insertSQL = "INSERT INTO " + ProductModelDM.TABLE_NAME
 				+ " (nome, descrizione, prezzo, fascia_iva, dimensioni, disponibilita, categoria, colore, immagine)"
 				+ "VALUES (?, ?, ?, ? ,? ,? ,? ,? , ?)";
 
 		try {
-			connection = ds.getConnection();
+			connection = DriverManagerConnectionPool.getConnection();
+			
 			preparedStatement = connection.prepareStatement(insertSQL);
 			preparedStatement.setString(1, product.getNome());
 			preparedStatement.setString(2, product.getDescrizione());
@@ -53,7 +40,8 @@ public class ProductModelDS implements ProductModel {
 			preparedStatement.setString(7, product.getCategoria());
 			preparedStatement.setString (8, product.getColore());
 			preparedStatement.setBytes(9, product.getImmagineUrl());
-
+			
+			
 			preparedStatement.executeUpdate();
 
 			connection.commit();
@@ -62,8 +50,7 @@ public class ProductModelDS implements ProductModel {
 				if (preparedStatement != null)
 					preparedStatement.close();
 			} finally {
-				if (connection != null)
-					connection.close();
+				DriverManagerConnectionPool.releaseConnection(connection);
 			}
 		}
 	}
@@ -75,10 +62,10 @@ public class ProductModelDS implements ProductModel {
 
 		ProductBean bean = new ProductBean();
 
-		String selectSQL = "SELECT * FROM " + ProductModelDS.TABLE_NAME + " WHERE id = ?";
+		String selectSQL = "select * from " + ProductModelDM.TABLE_NAME + " where id = ?";
 
 		try {
-			connection = ds.getConnection();
+			connection = DriverManagerConnectionPool.getConnection();
 			preparedStatement = connection.prepareStatement(selectSQL);
 			preparedStatement.setInt(1, code);
 
@@ -101,8 +88,7 @@ public class ProductModelDS implements ProductModel {
 				if (preparedStatement != null)
 					preparedStatement.close();
 			} finally {
-				if (connection != null)
-					connection.close();
+				DriverManagerConnectionPool.releaseConnection(connection);
 			}
 		}
 		return bean;
@@ -115,10 +101,10 @@ public class ProductModelDS implements ProductModel {
 
 		int result = 0;
 
-		String deleteSQL = "DELETE FROM " + ProductModelDS.TABLE_NAME + " WHERE id = ?";
+		String deleteSQL = "DELETE FROM " + ProductModelDM.TABLE_NAME + " WHERE CODE = ?";
 
 		try {
-			connection = ds.getConnection();
+			connection = DriverManagerConnectionPool.getConnection();
 			preparedStatement = connection.prepareStatement(deleteSQL);
 			preparedStatement.setInt(1, code);
 
@@ -129,8 +115,7 @@ public class ProductModelDS implements ProductModel {
 				if (preparedStatement != null)
 					preparedStatement.close();
 			} finally {
-				if (connection != null)
-					connection.close();
+				DriverManagerConnectionPool.releaseConnection(connection);
 			}
 		}
 		return (result != 0);
@@ -143,20 +128,21 @@ public class ProductModelDS implements ProductModel {
 
 		Collection<ProductBean> products = new LinkedList<ProductBean>();
 
-		String selectSQL = "SELECT * FROM " + ProductModelDS.TABLE_NAME;
+		String selectSQL = "SELECT * FROM " + ProductModelDM.TABLE_NAME;
 
 		if (order != null && !order.equals("")) {
 			if (order.equals("prezzoDec")) {
 				//prezzo decrescente
-				selectSQL += " Order by prezzo desc";
+				selectSQL += "Order by prezzo desc";
 			}else {
 			//prezzo crescente e tutti gli altri
 			selectSQL += " ORDER BY " + order;
 			}
 		}
 
+
 		try {
-			connection = ds.getConnection();
+			connection = DriverManagerConnectionPool.getConnection();
 			preparedStatement = connection.prepareStatement(selectSQL);
 
 			ResultSet rs = preparedStatement.executeQuery();
@@ -181,8 +167,7 @@ public class ProductModelDS implements ProductModel {
 				if (preparedStatement != null)
 					preparedStatement.close();
 			} finally {
-				if (connection != null)
-					connection.close();
+				DriverManagerConnectionPool.releaseConnection(connection);
 			}
 		}
 		return products;
