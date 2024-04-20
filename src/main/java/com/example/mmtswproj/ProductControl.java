@@ -1,4 +1,4 @@
-package it.unisa.control;
+package com.example.mmtswproj;
 
 import java.awt.image.BufferedImage;
 
@@ -6,16 +6,13 @@ import java.io.IOException;
 
 import java.sql.SQLException;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 
-import it.unisa.model.ProductModel;
-import it.unisa.model.ProductModelDM;
-import it.unisa.model.ProductModelDS;
-import it.unisa.model.ProductBean;
+import jakarta.servlet.*;
+
+import com.example.mmtswproj.model.*;
+
+
 /**
  * Servlet implementation class ProductControl
  */
@@ -42,7 +39,7 @@ public class ProductControl extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String dis="/ProductView.jsp";
+		String dis="/index.jsp";
 		
 		
 		String action = request.getParameter("action");

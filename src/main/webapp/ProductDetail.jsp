@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1" import="java.util.*,it.unisa.model.ProductBean"%>
+    pageEncoding="ISO-8859-1" import="java.util.*,com.example.mmtswproj.model"%>
+<%@ page import="com.example.mmtswproj.model.*" %>
 <!DOCTYPE html>
 <html>
 <head>
